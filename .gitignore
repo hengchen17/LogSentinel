@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 輸出報告 (每次分析都會重新產生，不需版控)
+report.html
+*.report.html
+
+# 系統 / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# 真實日誌檔（可能含敏感資訊，避免誤傳）
+*.log
+!sample_logs/*.log
