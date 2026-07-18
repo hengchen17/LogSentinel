@@ -10,6 +10,22 @@ from datetime import datetime
 
 from . import rules
 
+
+def _safe_json(data):
+    """
+    json.dumps 後，把可能被瀏覽器解讀成 HTML/Script 標籤的字元轉成
+    unicode escape，避免惡意 payload（例如日誌中真的含有
+    "</script>"、"<img onerror=...>" 等字串）提前截斷或汙染
+    <script> 區塊，導致後面的圖表 / 表格渲染程式碼整段失效。
+    """
+    s = json.dumps(data, ensure_ascii=False)
+    return (
+        s.replace("<", "\\u003c")
+         .replace(">", "\\u003e")
+         .replace("&", "\\u0026")
+    )
+
+
 CATEGORY_COLORS = {
     "SQL Injection": "#ef4444",
     "XSS": "#f97316",
@@ -75,8 +91,8 @@ def generate_html_report(result, output_file="report.html", log_file_name=""):
     top_ip_labels = [ip for ip, _ in top_ips]
     top_ip_scores = [score for _, score in top_ips]
 
-    payload_json = json.dumps(payload_rows, ensure_ascii=False)
-    event_json = json.dumps(event_rows, ensure_ascii=False)
+    payload_json = _safe_json(payload_rows)
+    event_json = _safe_json(event_rows)
 
     stat_cards = "".join(f"""
             <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-sm border-l-4"
@@ -264,8 +280,8 @@ def generate_html_report(result, output_file="report.html", log_file_name=""):
         new Chart(document.getElementById('threatChart').getContext('2d'), {{
             type: 'doughnut',
             data: {{
-                labels: {json.dumps(chart_labels, ensure_ascii=False)},
-                datasets: [{{ data: {json.dumps(chart_data)}, backgroundColor: {json.dumps(chart_colors)}, borderWidth: 0 }}]
+                labels: {_safe_json(chart_labels)},
+                datasets: [{{ data: {json.dumps(chart_data)}, backgroundColor: {_safe_json(chart_colors)}, borderWidth: 0 }}]
             }},
             options: {{ plugins: {{ legend: {{ position: 'bottom', labels: {{ color: '#d1d5db', boxWidth: 12 }} }} }} }}
         }});
@@ -273,7 +289,7 @@ def generate_html_report(result, output_file="report.html", log_file_name=""):
         new Chart(document.getElementById('ipChart').getContext('2d'), {{
             type: 'bar',
             data: {{
-                labels: {json.dumps(top_ip_labels)},
+                labels: {_safe_json(top_ip_labels)},
                 datasets: [{{
                     label: '威脅分數',
                     data: {json.dumps(top_ip_scores)},
