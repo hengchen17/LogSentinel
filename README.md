@@ -6,7 +6,7 @@
 即可自動偵測 SQL Injection、XSS、路徑遍歷、指令注入、敏感檔案存取、
 惡意掃描工具與暴力破解等攻擊行為，並產出一份美觀、可互動的 HTML 分析報告。
 
-![CI](https://github.com/<your-username>/<your-repo>/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/hengchen17/LogSentinel/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
