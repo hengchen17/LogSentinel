@@ -35,6 +35,7 @@ CATEGORY_COLORS = {
     "Malicious UA": "#3b82f6",
     "Scanner": "#facc15",
     "Brute Force": "#ec4899",
+    "Compound Attack": "#7c3aed",
 }
 
 

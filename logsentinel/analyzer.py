@@ -73,6 +73,10 @@ def run_analysis(log_file, progress_callback=None):
             decoded_url = urllib.parse.unquote(url)
 
             # 1. URL / Payload 特徵比對 (SQLi, XSS, Path Traversal, Command Injection, Sensitive File)
+            #    不再於命中第一個分類後 break：單一 request 可能同時攜帶多種攻擊特徵
+            #    (例如 SQLi payload 又指向敏感檔案路徑)，逐一記錄才能反映真實風險，
+            #    並在下方額外標記為「複合攻擊」以提高其威脅分數。
+            matched_categories = []
             for category, pattern in rules.THREAT_PATTERNS.items():
                 if pattern.search(decoded_url):
                     result.add_alert(category, {
@@ -82,7 +86,16 @@ def run_analysis(log_file, progress_callback=None):
                         "payload": decoded_url,
                         "status": status,
                     })
-                    break  # 一個 request 只計最先命中的分類，避免重複灌水
+                    matched_categories.append(category)
+
+            if len(matched_categories) >= rules.COMPOUND_ATTACK_MIN_CATEGORIES:
+                result.add_alert("Compound Attack", {
+                    "line": idx,
+                    "ip": ip,
+                    "time": data["time"],
+                    "payload": f"{decoded_url}  [{' + '.join(matched_categories)}]",
+                    "status": status,
+                })
 
             # 2. 惡意 User-Agent
             agent_lower = agent.lower()
@@ -115,17 +128,22 @@ def run_analysis(log_file, progress_callback=None):
 
 
 def _sliding_window_max_count(times, window_seconds):
-    """在已排序的時間序列中，找出 window_seconds 秒內最多同時發生的次數"""
+    """
+    找出 window_seconds 秒內最多發生的事件次數。
+
+    以雙指標(two-pointer)取代原本的雙層迴圈：
+    times 已依時間排序後單調不減，因此 left 指標只會隨 right 前進而前進，
+    整體只會各自走過陣列一次，時間複雜度由 O(n^2) 降為 O(n log n)
+    (瓶頸落在排序；掃描本身是 O(n))。當單一 IP 觸發大量事件
+    (例如真的被掃描攻擊灌爆 log)時效能提升會很明顯。
+    """
     times = sorted(times)
     best = 0
-    for i in range(len(times)):
-        count = 0
-        for j in range(i, len(times)):
-            if (times[j] - times[i]).total_seconds() <= window_seconds:
-                count += 1
-            else:
-                break
-        best = max(best, count)
+    left = 0
+    for right in range(len(times)):
+        while (times[right] - times[left]).total_seconds() > window_seconds:
+            left += 1
+        best = max(best, right - left + 1)
     return best
 
 

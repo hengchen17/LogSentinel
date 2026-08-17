@@ -83,4 +83,11 @@ CATEGORY_SEVERITY = {
     "Scanner": "medium",
     "Brute Force": "high",
     "Malicious UA": "low",
+    "Compound Attack": "critical",  # 單一請求同時命中多種攻擊特徵，風險高於單一分類總和
 }
+
+# ============================================================
+# 6. 複合攻擊 (Compound Attack) 判定門檻
+#    單一 request 同時命中的分類數 >= 此值時，額外標記為複合攻擊
+# ============================================================
+COMPOUND_ATTACK_MIN_CATEGORIES = 2
