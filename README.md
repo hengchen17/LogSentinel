@@ -16,10 +16,13 @@
 
 - **多種攻擊偵測**：SQL Injection、XSS、Path Traversal、Command Injection、
   敏感檔案存取（`.env`、`.git/config` 等）
-- **行為型偵測**：時間窗口式目錄掃描器偵測、暴力破解 (brute-force) 偵測
+- **複合攻擊 (Compound Attack) 標記**：單一請求同時命中多種攻擊特徵時
+  （例如路徑遍歷繞到 `.env`），會額外標記為複合攻擊並提高該 IP 的威脅分數，
+  避免低估組合式攻擊手法的風險
+- **行為型偵測**：時間窗口式目錄掃描器偵測（雙指標演算法，O(n log n)）、
+  暴力破解 (brute-force) 偵測
 - **惡意 UA 識別**：內建 sqlmap / nikto / nmap 等常見掃描工具特徵庫
 - **威脅分數排名**：自動彙整每個來源 IP 的威脅分數，找出最危險的攻擊者
-- **美化終端輸出**：以 [rich](https://github.com/Textualize/rich) 呈現進度條與彩色表格
 - **互動式 HTML 報告**：Tailwind CSS + Chart.js，含分類圖表、Top IP 長條圖、
   即時搜尋、CSV 匯出
 - **規則可擴充**：所有偵測特徵集中於 `logsentinel/rules.py`，新增規則不需改動主程式
@@ -38,6 +41,8 @@ logsentinel/
 │   └── cli.py            # 命令列進入點
 ├── sample_logs/
 │   └── mock_access.log   # 含攻擊樣本的模擬日誌，方便直接體驗
+├── tests/
+│   └── test_analyzer.py  # 滑動窗口效能/正確性、複合攻擊偵測等單元測試
 ├── run.py                 # 執行進入點
 ├── requirements.txt
 └── .github/workflows/ci.yml
@@ -80,6 +85,15 @@ SCAN_WINDOW = 10          # 10 秒內
 SCAN_THRESHOLD = 3        # 超過 3 次 404 視為掃描行為
 BRUTE_FORCE_THRESHOLD = 10
 ```
+
+## 🧪 執行測試
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+涵蓋滑動窗口演算法的正確性與效能、以及複合攻擊判定邏輯。
 
 ## 📤 上傳到 GitHub
 
