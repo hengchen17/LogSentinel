@@ -95,21 +95,6 @@ pytest tests/ -v
 
 涵蓋滑動窗口演算法的正確性與效能、以及複合攻擊判定邏輯。
 
-## 📤 上傳到 GitHub
-
-```bash
-cd logsentinel
-git init
-git add .
-git commit -m "Initial commit: LogSentinel v2.0"
-git branch -M main
-git remote add origin https://github.com/<你的帳號>/<你的repo>.git
-git push -u origin main
-```
-
-> 若尚未建立遠端 repo，先到 GitHub 建立一個空的 repository（不要初始化 README），
-> 再貼上系統提供的 `git remote add origin ...` 指令即可。
-
 ## ⚠️ 使用聲明
 
 本工具僅用於分析你自己擁有或已獲授權管理之伺服器日誌，屬於**防禦性**資安工具，
