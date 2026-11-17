@@ -20,6 +20,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest tests/ -v
+
       - name: Run analysis on sample log (smoke test)
         run: python run.py sample_logs/mock_access.log -o report.html --quiet
 

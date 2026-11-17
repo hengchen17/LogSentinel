@@ -26,6 +26,7 @@
 - **互動式 HTML 報告**：Tailwind CSS + Chart.js，含分類圖表、Top IP 長條圖、
   即時搜尋、CSV 匯出
 - **規則可擴充**：所有偵測特徵集中於 `logsentinel/rules.py`，新增規則不需改動主程式
+- **美化終端輸出**：以 [rich](https://github.com/Textualize/rich) 呈現進度條與彩色表格
 - **支援標準日誌格式**：Nginx / Apache 的 Common 與 Combined Log Format
 
 ## 📁 專案結構
